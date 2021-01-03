@@ -33,6 +33,11 @@ The INTENT with all this is to package all this code / all these dependencies as
 	* Linux: 
 	* Windows: Good luck & Godspeed to you, brave soul.
 2) Make sure you have python3.X environment on your computer somewhere. Currently (2017.03) this should be 3.5. 
+
+    * conda create -n py34 python=3.4 -c conda-forge pip==19
+    * remove old pip (bin/pip and pip folder)
+    * and run 
+    * curl https://bootstrap.pypa.io/3.4/get-pip.py | python
 	* I recommend you install this (and all your python packages) via anaconda: `sudo conda create -n py35 python=3.5 anaconda`  # creates python 3.5 environment with standard anaconda packages (numpy, scipy, matplotlib, more)
     * `sudo conda install -n py35 couchdb` # install couchdb
 	* Once you have a python 3.4 environment somewhere add the following line to your ~/.bashrc or ~/.bash_profile file:
@@ -41,6 +46,10 @@ The INTENT with all this is to package all this code / all these dependencies as
 3) Install couchdb server. 
     * See http://docs.mongodb.org/manual/installation/
     * Recommended install location is `~/mongodb/`
+
+wget -qO - https://www.mongodb.org/static/pgp/server-4.4.asc | sudo apt-key add -
+echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/4.4 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-4.4.list
+sudo apt-get install -y mongodb-org
 
 4) Get BVP from github: `git clone https://github.com/marklescroart/bvp <your_bvp_path>`
 	* `<your_bvp_path>` should be something like `~/Code/bvp`, or wherever you like keeping code
@@ -70,7 +79,7 @@ If you have models in non-Blender form (3DS max, Sketchup, .off, whatever), and 
 
 If you are willing to actually putting them in BVP format, GREAT, we have tools for that. 
 
-
+ 
 # Adding labels
 
 The objects in the database are already labeled with semantic categories from the WordNet hierarchy. To add additional labels through the BVP blender addon GUI, you will need to make sure your system has the WordNet corpus downloaded for nltk (the Natural Language ToolKit for python)
