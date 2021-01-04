@@ -53,14 +53,15 @@ from .Classes.Material import Material
 from .Classes.Object import Object
 from .Classes.RenderOptions import RenderOptions
 from .Classes.Scene import Scene
-#from .Classes.SceneList import SceneList # STILL WIP
+from .Classes.SceneList import SceneList # STILL WIP
 from .Classes.Shadow import Shadow
+#from .Classes.Library import bvpLibrary
 #from .Classes.Shape import Shape # STILL WIP Move to Object...?
 from .Classes.Sky import Sky
 
-from . import DB
+#from . import DB
 from . import files
-from .DB import DBInterface
+#from .DB import DBInterface
 
 # NOTE: UPDATE LIST BELOW WHEN CLASSES ARE ALL DONE
 
@@ -274,5 +275,5 @@ def blend(script, blend_file=None, is_local=True, tmpdir='/tmp/', is_verbose=Fal
         return jobid, stderr
 
 __all__ = ['Action', 'Background', 'Camera', 'ObConstraint', 'CamConstraint', 'Material', 
-           'Object', 'RenderOptions', 'Scene', 'Shadow', 'Sky', 'DBInterface',
+           'Object', 'RenderOptions', 'Scene', 'Shadow', 'Sky', 'DBInterface', 'SceneList'
            'utils','config', 'files'] 

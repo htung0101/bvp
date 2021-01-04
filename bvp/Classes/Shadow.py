@@ -55,7 +55,8 @@ class Shadow(MappedClass):
             scn = bpy.context.scene # Get current scene if input not supplied
         if self.name:
             # Add group of mesh object(s)
-            shadow_ob = add_group(self.name, self.fname, self.path)
+            shadow_ob = add_group(self.name, self.fname, self.path, debug=True)
+
         if scale is not None:
             sz = scale / self.real_world_size[0] # most skies are 100x100 in area
             bpy.ops.transform.resize(value=(sz, sz, sz))            

@@ -214,6 +214,7 @@ def grab_only(ob):
     bpy.context.scene.objects.active = ob    
 
 def find_group_parent(group):
+
     """Find parent object among group objects"""
     if isinstance(group, bpy.types.Group):
         obs = group.objects
@@ -839,7 +840,7 @@ def add_action(action_name, fname, fpath=os.path.join(config.get('path','db_dir'
     a = bpy.data.actions[action_name]
     return a
 
-def add_group(name, fname, fpath=os.path.join(config.get('path','db_dir'), 'Object'), proxy=True):
+def add_group(name, fname, fpath=os.path.join(config.get('path','db_dir'), 'Object'), proxy=True, debug=False):
     """Add a proxy object for a Blender group to the current scene. 
 
     Add a group of Blender objects (all the parts of a single object, most likely) from another 
@@ -858,7 +859,7 @@ def add_group(name, fname, fpath=os.path.join(config.get('path','db_dir'), 'Obje
     -----
     Counts objects currently in scene and increments count.
     """ 
-
+    print("name", name, "fname", fname, fpath)
     if name in bpy.data.groups:
         
         # TO DO: add:
@@ -875,17 +876,23 @@ def add_group(name, fname, fpath=os.path.join(config.get('path','db_dir'), 'Obje
         G.dupli_group = bpy.data.groups[name]
         G.name = name
     else:
-        print('Did not find group! adding...')
+        #print('Did not find group! adding...')
         old_obs = list(bpy.context.scene.objects)
+        
         bpy.ops.wm.append(
-            directory=os.path.join(fpath, fname)+"\\Group\\", # i.e., directory WITHIN .blend file (Scenes / Objects / Groups)
-            filepath="//"+fname+"\\Group\\"+name, # local filepath within .blend file to the scene to be imported
+            directory=os.path.join(fpath, fname)+"/Group/", # i.e., directory WITHIN .blend file (Scenes / Objects / Groups)
+            #filepath="//"+fname+"\\Group\\"+name, # local filepath within .blend file to the scene to be imported
             filename=name, # "filename" is not the name of the file but the name of the data block, i.e. the name of the group. This stupid naming convention is due to Blender's API.
             link=proxy, 
             #relative_path=False, 
             autoselect=True, 
             instance_groups=proxy)
         new_obs = [x for x in list(bpy.context.scene.objects) if not x in old_obs]
+        #print(os.path.join(fpath, fname)+"/Group/")
+        #if debug:
+        #import ipdb; ipdb.set_trace()
+        if len(new_obs) > 1:
+            new_obs = new_obs[:1]
         G  = find_group_parent(new_obs)
         grab_only(G)
     return G

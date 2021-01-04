@@ -137,6 +137,7 @@ class Object(MappedClass):
         else:
             grp = bvpu.blender.add_group(self.name, self.fname, self.path, proxy=proxy)
         # Select only this object as active object
+
         bvpu.blender.grab_only(grp) 
         if isinstance(grp, bpy.types.Object):
             grp_ob = grp            
@@ -216,7 +217,6 @@ class Object(MappedClass):
         scn.update()
         scn.frame_current-=1
         scn.update()
-
     def apply_action(self, arm, action):
         """Apply an action to an armature.
 

@@ -228,12 +228,12 @@ class Sky(MappedClass):
         """
         if not scn:
             scn = bpy.context.scene
-        bpy.ops.wm.link_append(
-            directory=os.path.join(self.path, self.fname)+"\\World\\", # i.e., directory WITHIN .blend file (Scenes / Objects / World / etc)
-            filepath="//"+self.fname+"\\World\\"+self.name, # local filepath within .blend file to the world to be imported
+        bpy.ops.wm.append(
+            directory=os.path.join(self.path, self.fname)+"/World/", # i.e., directory WITHIN .blend file (Scenes / Objects / World / etc)
+            #filepath="//"+self.fname+"/World/"+self.name, # local filepath within .blend file to the world to be imported
             filename=self.name, # "filename" being the name of the data block, i.e. the name of the world.
             link=False, 
-            relative_path=False, 
+            #relative_path=False, 
             autoselect=True)
         scn.world = bpy.data.worlds[self.name]
 

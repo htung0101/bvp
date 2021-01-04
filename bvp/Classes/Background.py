@@ -66,7 +66,7 @@ class Background(MappedClass):
             scn = bpy.context.scene # Get current scene if input not supplied
         if self.name is not 'DummyBackground':
             # Add group of mesh object(s)
-            print('{}, {}'.format(self.path, self.name))
+            print('{}, {}, {}'.format(self.path, self.name, self.fname))
             add_group(self.name, self.fname, self.path)
         else:
             # Potentially add default background (with ground plane, other render settings...)
