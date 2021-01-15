@@ -1,7 +1,6 @@
 import glob
 import os
 import argparse
-import click
 import numpy as np
 from moviepy.editor import ImageSequenceClip
 import cv2
@@ -42,7 +41,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
      
-    # read all rgbs
+    # read all rgbs\
     rgbs = []
     for file in sorted(glob.glob(os.path.join(args.data_dir, args.prefix))):
         rgb = imageio.imread(file)

@@ -6,3 +6,14 @@ pip3 install numpy
 pip3 install scipy
 pip3 install cython
 pip3 install nibabel
+
+
+# for blender 2.91.0 and python 3.7
+
+pip install h5py
+pip install imageio
+pip install opencv-python
+pip install matplotlib
+pip install moviepy
+pip install pyyaml
+pip install ipdb

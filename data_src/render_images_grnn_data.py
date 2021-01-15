@@ -13,7 +13,7 @@ import copy
 import numpy as np
 #import imageio
 #import cv2
-import scipy.misc
+#import scipy.misc
 from pathlib import Path
 #import bpy
 #bpy.context.scene.render.engine = 'CYCLES'
@@ -21,6 +21,8 @@ import json
 #from moviepy.editor import ImageSequenceClip
 from imageio_ffmpeg import write_frames
 #from scipy.spatial.transform import Rotation as R
+import sys
+sys.path.append(os.environ['BVP_SOURCE_DIR'])
 
 import bvp_utils
 import ipdb
@@ -60,7 +62,7 @@ def rot2d(theta, vector):
 if __name__ == "__main__":
     #import sys
     #print(sys.argv)
-    parser = argparse.ArgumentParser()
+    parser = bvp_utils.utils.ArgumentParserForBlender()
     parser.add_argument("-json_file", type=str, default="")
     parser.add_argument("-P", type=str, default="")
     args = parser.parse_args()
@@ -69,7 +71,6 @@ if __name__ == "__main__":
     with open(os.path.join(mark_data_dir, args.json_file)) as f:
       data = json.load(f)
 
-    st()
 
     #with open('bvp_ses1_trn1_torender.json') as f:
     #  data2 = json.load(f)

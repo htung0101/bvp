@@ -230,7 +230,7 @@ class Scene(MappedClass):
         """
         scn = bvpu.blender.set_scene(scn)
         # set layers to correct setting
-        scn.layers = [True]+[False]*19
+        scn.view_layers = [True]+[False]*19
         # set cursort to center
         set_cursor((0, 0, 0))
         # Background

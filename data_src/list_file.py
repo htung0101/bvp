@@ -1,6 +1,12 @@
 import bpy
 import os
 import argparse
+import ipdb
+st = ipdb.set_trace
+
+import sys
+sys.path.append(os.environ['BVP_SOURCE_DIR'])
+import bvp_utils
 
 def debug_print(msg):
     print(msg)
@@ -61,16 +67,16 @@ def mission1():
 if __name__ == "__main__":
     #import sys
     #print(sys.argv)
-    parser = argparse.ArgumentParser()
+    parser = bvp_utils.utils.ArgumentParserForBlender()
     parser.add_argument("-filename", type=str, default="")
-    parser.add_argument("-P", type=str, default="")
+    #parser.add_argument("-P", type=str, default="")
     args = parser.parse_args()
 
     fp = args.filename
+    print("filename", fp)
     #fp = "/home/htung/Documents/2020/Fall/mark_data/BVPdb/Background/Category_Outdoor_01.blend"
     with bpy.data.libraries.load(fp) as (data_in, data_out):
        pass
-
-    print(data_in.groups)
+    print(data_in.collections)
 
 #['Group.004', 'Group.003', 'Group.002', 'Group.001', 'Group']

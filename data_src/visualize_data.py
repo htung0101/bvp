@@ -107,8 +107,3 @@ if __name__ == "__main__":
         #                            repeat_delay=2000)
 
         plt.show()
-
-
-
-    st()
-    print("hello")
