@@ -21,6 +21,9 @@ import json
 #from moviepy.editor import ImageSequenceClip
 from imageio_ffmpeg import write_frames
 #from scipy.spatial.transform import Rotation as R
+import sys
+sys.path.append(os.environ["BVP_SOURCE_DIR"])
+
 
 import bvp_utils
 import ipdb
@@ -60,16 +63,16 @@ def rot2d(theta, vector):
 if __name__ == "__main__":
     #import sys
     #print(sys.argv)
-    parser = argparse.ArgumentParser()
+    parser = bvp_utils.utils.ArgumentParserForBlender()
     parser.add_argument("-json_file", type=str, default="")
-    parser.add_argument("-P", type=str, default="")
+    parser.add_argument("-scene_id", type=int)
     args = parser.parse_args()
 
     mark_data_dir = bvp_utils.utils.get_markdata_dir()
+    print(mark_data_dir)
     with open(os.path.join(mark_data_dir, args.json_file)) as f:
       data = json.load(f)
 
-    st()
 
     #with open('bvp_ses1_trn1_torender.json') as f:
     #  data2 = json.load(f)
@@ -78,7 +81,7 @@ if __name__ == "__main__":
     RO.resolution_x = RO.resolution_y = 256
     RO.BVPopts["Type"] = "all"
 
-    for data_id in range(0, 1):
+    for data_id in range(args.scene_id, args.scene_id + 1):
         scene_data0 = data[data_id]
         #scene_data = data2[data_id]
 
@@ -98,9 +101,6 @@ if __name__ == "__main__":
             scene_data0["shadow"] = {}
         scene_data0["shadow"]["dbi"] = dbi
 
-        print("========== camera =====")
-        print(scene_data0["camera"])
-        print("======================")
 
         # compute dist, elevation from the current pos
         init_location = np.array(scene_data0["camera"]["location"][0])
@@ -110,8 +110,8 @@ if __name__ == "__main__":
 
         cam_to_lookat = init_location - init_fix_location
         # make init_fix_location closer to the camera
-        init_fix_location[:2] = cam_to_lookat[:2]*0.6  + init_fix_location[:2]
-        cam_to_lookat = init_location - init_fix_location
+        #init_fix_location[:2] = cam_to_lookat[:2]*0.6  + init_fix_location[:2]
+        #cam_to_lookat = init_location - init_fix_location
         
         new_cam_locs = [init_location]
 
