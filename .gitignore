@@ -10,6 +10,7 @@
 *bvp.egg*
 build/*
 dist/*
+vis/
 
 ## -- Do not copy actual settings, only example for distribution -- ##
 Settings/*ettings*.json

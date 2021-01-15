@@ -59,13 +59,12 @@ def mission1():
 
 #mission1()
 if __name__ == "__main__":
-    import sys
-    print(sys.argv)
+    #import sys
+    #print(sys.argv)
     parser = argparse.ArgumentParser()
     parser.add_argument("-filename", type=str, default="")
     parser.add_argument("-P", type=str, default="")
     args = parser.parse_args()
-    print("args", args)
 
     fp = args.filename
     #fp = "/home/htung/Documents/2020/Fall/mark_data/BVPdb/Background/Category_Outdoor_01.blend"
