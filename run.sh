@@ -7,7 +7,7 @@ blender=~/Documents/install/blender-2.76b-linux-glibc211-x86_64/blender
 #blender --python render_images_grnn_data.py
 
 
-$blender -P data_src/render_images_grnn_data.py -- -json_file bvp_ses1_trn1.json -scene_id 2
+#$blender -b -P data_src/render_images_grnn_data.py -- -json_file bvp_ses1_trn1.json -scene_id 2
 
 ## put output images together to make a gif video
 #python data_src/make_video.py --prefix="Sc0001_*.png"
@@ -21,3 +21,9 @@ $blender -P data_src/render_images_grnn_data.py -- -json_file bvp_ses1_trn1.json
 
 ## read mark's data and make them into gif
 #python data_src/visualize_data.py -fileid="0" -output_dir="vis"
+
+## script to read json 
+#python data_src/read_json.py
+
+## 
+python data_src/visualize_pointcloud.py

@@ -49,6 +49,8 @@ def get_hostname():
 def get_markdata_dir():
     return get_query_dir('markdata_dir')
 
+def get_quantized_dir():
+    return get_query_dir('quantized_dir')
 
 def get_source_dir():
     return os.getenv("BVP_SOURCE_DIR")

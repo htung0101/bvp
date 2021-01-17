@@ -22,6 +22,9 @@ try:
 except ImportError: 
     is_blender = False
 
+import ipdb
+st=ipdb.set_trace
+
 DEFAULT_FRAME_RATE = int(config.get('render','frame_rate'))
 
 class Scene(MappedClass):
@@ -108,6 +111,7 @@ class Scene(MappedClass):
         if self.fname is None:
             self.fname = 'Sc%04d_##'%self.number
         self.frame_rate = frame_rate
+        self.ori_filepath = None
 
     @property
     def n_objects(self):
@@ -243,7 +247,7 @@ class Scene(MappedClass):
         # Sky
         self.sky.place(number=self.number, scale=scale)
         # Camera
-        self.camera.place(name='camera%03d'%self.number)
+        self.camera.place(name='camera%03d'%self.number, animation=False)
         # Shadow
         if self.shadow:
             self.shadow.place(scale=self.background.real_world_size)
@@ -271,6 +275,10 @@ class Scene(MappedClass):
             # Apply other options
             render_options.apply_opts()
         scn.layers = [True]*20
+
+
+    def place_camera(self, frame_id=0):
+        self.camera.place(name='camera%03d'%self.number, animation=False, location_id=frame_id)
 
     def render(self, render_options, scn=None):
         """Renders the scene (immediately, in open instance of Blender)
@@ -312,6 +320,66 @@ class Scene(MappedClass):
             raise Exception("Invalid render type specified!\n   Please use 'FirstFrame', 'FirstAndLastFrame', or 'All'")
         # Render animation
         bpy.ops.render.render(animation=True, scene=scn.name)
+
+    def render_frame_by_frame(self, render_options, scn=None, frame_id=0):
+        """Renders the scene (immediately, in open instance of Blender)
+        
+        Parameters
+        ----------
+        render_options : RenderOptions instance
+            Class to specify rendering parameters
+        scn : string scene name
+            Scene to render. Defaults to current scene.
+        """
+        scn = bvpu.blender.set_scene(scn)
+
+        if self.ori_filepath == None:
+            self.ori_filepath = copy.deepcopy(scn.render.filepath)
+        # Reset scene nodes (?)
+        
+        # TODO: This is brittle and shitty. Need to revisit how to set final file names. 
+        if scn.render.filepath is None:
+            filepath = render_options.BVPopts['BasePath']
+            filepath = filepath.replace("##", str(frame_id).zfill(2))
+            scn.render.filepath  = filepath
+        if '{scene_name}' in scn.render.filepath:
+            scn.render.filepath = render_options.BVPopts['BasePath'].format(self.fname)
+        elif '%s' in scn.render.filepath:
+            scn.render.filepath = scn.render.filepath%self.fname
+        elif "#" in self.ori_filepath:
+            filepath = copy.deepcopy(self.ori_filepath)
+            filepath = filepath.replace("##", str(frame_id).zfill(2))
+            scn.render.filepath  = filepath
+        print("====================================")
+        print("ori filepath", self.ori_filepath)
+        print("filepath", scn.render.filepath)
+
+        # Apply rendering options
+        render_options.apply_opts()
+        # Render all layers!
+        scn.layers = [True]*20 # TODO: Revisit locations where layers are set in this class's methods / in RenderOptions methods
+        # TODO: Why isn't this in RenderOptions.apply_opts? Seems as if it should be...
+        if render_options.BVPopts['Type'].lower()=='firstframe':
+            scn.frame_step = scn.frame_end+1 # so only one frame will render
+        elif render_options.BVPopts['Type'].lower()=='firstandlastframe':
+            scn.frame_step = scn.frame_end-1
+        elif render_options.BVPopts['Type'].lower()=='all':
+            scn.frame_step = 1
+        elif render_options.BVPopts['Type'].lower()=='every4th':
+            # Assure that scene starts with a multiple of 4 + 1
+            while not scn.frame_start%4==1:
+                scn.frame_start += 1
+            scn.frame_step = 4
+        else:
+            raise Exception("Invalid render type specified!\n   Please use 'FirstFrame', 'FirstAndLastFrame', or 'All'")
+        # Render animation
+
+        
+        bpy.ops.render.render(write_still=True)
+        return filepath
+
+
+        #bpy.ops.render.render(animation=True, scene=scn.name)
 
     def clear(self, scn=None):
         """Resets scene to empty, ready for next.

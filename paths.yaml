@@ -1,4 +1,5 @@
 aw-m17-R2:
     htung:
         markdata_dir: /home/htung/Documents/2020/Fall/mark_data
+        quantized_dir: /home/htung/Documents/2020/Fall/quantized_policies
         #weird: "weird2"

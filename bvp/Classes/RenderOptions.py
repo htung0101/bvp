@@ -14,9 +14,11 @@ import sys
 import math as bnp
 from .. import utils as bvpu
 from ..options import config
-
+import ipdb
+st=ipdb.set_trace
 try:
     import bpy
+    import mathutils as bmu
     is_blender = True
 except ImportError:
     is_blender = False
@@ -473,7 +475,6 @@ class RenderOptions(object):
             # Set unique name per frame
             endCut = DepthOut.base_path.index('Zdepth/')+len('Zdepth/')
             DepthOut.file_slots[0].path = DepthOut.base_path[endCut:]+'_z'
-            # Set base path
             DepthOut.base_path = DepthOut.base_path[:endCut]
 
         NT.links.new(NodeAdd1000.outputs[0], DepthOut.inputs[0])

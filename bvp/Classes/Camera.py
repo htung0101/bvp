@@ -1,5 +1,7 @@
 # Imports
 import math as bnp
+import ipdb
+st=ipdb.set_trace
 from .Constraint import CamConstraint
 from .. import utils as bvpu
 
@@ -69,7 +71,7 @@ class Camera(object):
             str(self.clip), str(self.frames), str([["%.2f"%x for x in Pos] for Pos in self.location]), str([["%.2f"%x for x in Pos] for Pos in self.fix_location]))
         return S
         
-    def place(self, name='000', draw_size=0.33, scn=None):
+    def place(self, name='000', draw_size=0.33, scn=None, animation=True, location_id=0):
         """Places camera into Blender scene (only works within Blender)
 
         Parameters
@@ -96,12 +98,13 @@ class Camera(object):
         # Add camera
         cam_data = bpy.data.cameras.new('cam_{}'.format(name))
         cam = bpy.data.objects.new('cam_{}'.format(name), cam_data)
+
         scn.objects.link(cam) # Make camera object present in scene
         scn.camera = cam # Set as active camera
-        cam.location = self.location[0]
+        cam.location = self.location[location_id]
         # Add fixation target
         fix = bpy.data.objects.new('camtarget_{}'.format(name), None)
-        fix.location = self.fix_location[0]
+        fix.location = self.fix_location[location_id]
         fix.empty_draw_type = 'SPHERE'
         fix.empty_draw_size = draw_size
         # Add camera constraints to look at target (both necessary...? Unclear. Currently works, tho.)
@@ -115,15 +118,25 @@ class Camera(object):
         trk2.up_axis = 'UP_Y'
         cam.data.lens = self.lens
         cam.data.clip_start, cam.data.clip_end = self.clip
-
         # Set camera motion (multiple camera positions for diff. frames)
         ## !!! TODO fix make_location_animation awful function and variable names
-        a = bvpu.blender.make_location_animation(self.location, self.frames, action_name='CamMotion', handle_type='VECTOR')
-        cam.animation_data_create()
-        cam.animation_data.action = a
-        f = bvpu.blender.make_location_animation(self.fix_location, self.frames, action_name='FixMotion', handle_type='VECTOR')
-        fix.animation_data_create()
-        fix.animation_data.action = f
+        if animation:
+
+            a = bvpu.blender.make_location_animation(self.location, self.frames, action_name='CamMotion', handle_type='VECTOR')
+            cam.animation_data_create()
+            cam.animation_data.action = a
+            f = bvpu.blender.make_location_animation(self.fix_location, self.frames, action_name='FixMotion', handle_type='VECTOR')
+            fix.animation_data_create()
+            fix.animation_data.action = f
+
+    def get_intrinsics(self, scn):
+        camd = scn.camera
+        #name='000'
+        #cam_data = bpy.data.cameras.new('cam_{}'.format(name))
+        #camd = bpy.data.objects.new('cam_{}'.format(name), cam_data)
+        return self.get_calibration_matrix_K_from_blender(camd)
+
+
 
     def place_stereo(self, disparity, layers=None, scn=None):
         """Add two cameras for stereo rendering.
