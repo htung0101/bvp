@@ -7,6 +7,7 @@
 #import numpy as np
 import bpy
 import bvp
+import h5py
 import os
 import argparse
 import glob
@@ -112,6 +113,26 @@ def rot2d(theta, vector):
     return r.dot(vector)
 
 
+jsonfile_to_id = {"bvp_ses1_trn1.json": "0",
+                  "bvp_ses1_trn2.json": "1",
+                  "bvp_ses1_trn3.json": "2",
+                  "bvp_ses1_trn4.json": "3",
+                  "bvp_ses1_val.json": "val"
+                  }
+
+id_to_depthfile = {"0": "bvp_dist/distance_ses00_trn_p000_2fce59d838774e989f4427b60447b568.hdf",
+                   "1": "bvp_dist/distance_ses00_trn_p001_2fce59d838774e989f4427b60447b568.hdf",
+                   "2": "bvp_dist/distance_ses00_trn_p002_2fce59d838774e989f4427b60447b568.hdf",
+                   "3": "bvp_dist/distance_ses00_trn_p003_2fce59d838774e989f4427b60447b568.hdf",
+                   "val": "bvp_dist/distance_ses00_val_p000_a090392cfe0a42f8b0983fefc15d0840.hdf"}
+id_to_rgbfolder = {"0": "berkeley_box/stimuli_trn_run0",
+                   "1": "berkeley_box/stimuli_trn_run1",
+                   "2": "berkeley_box/stimuli_trn_run2",
+                   "3": "berkeley_box/stimuli_trn_run3",
+                   "val": "berkeley_box/stimuli_val",
+                  }
+
+
 if __name__ == "__main__":
     #import sys
     #print(sys.argv)
@@ -119,6 +140,7 @@ if __name__ == "__main__":
     parser.add_argument("-json_file", type=str, default="")
     parser.add_argument("-scene_id", type=int)
     parser.add_argument("-output_dir", type=str, default="/home/htung/Desktop/BlenderTemp/")
+    parser.add_argument("-data_dir", type=str, default="/media/htung/Extreme SSD/fish/mark_data/")
     args = parser.parse_args()
 
     mark_data_dir = bvp_utils.utils.get_markdata_dir()
@@ -126,14 +148,17 @@ if __name__ == "__main__":
     with open(os.path.join(mark_data_dir, args.json_file)) as f:
       data = json.load(f)
 
-
+    file_id  = jsonfile_to_id[args.json_file]
+    depth_file = id_to_depthfile[file_id]
+    rgb_folder = id_to_rgbfolder[file_id]
+    
     #with open('bvp_ses1_trn1_torender.json') as f:
     #  data2 = json.load(f)
 
     output_dir = args.output_dir
 
     RO = bvp.RenderOptions()
-    RO.resolution_x = RO.resolution_y = 256
+    RO.resolution_x = RO.resolution_y = 128
     RO.BVPopts["Type"] = "all"
     RO.BVPopts["Zdepth"] = True
     RO.BVPopts["BasePath"] = os.path.join(output_dir, "Scenes/{scene_name}")
@@ -141,11 +166,17 @@ if __name__ == "__main__":
     #RO.BVPopts["Normal"] = "True"
     #RO.image_settings = {'color_depth': 32, 'file_format': 'PNG'}
 
+    # find the starting point for this frame
+    start_frame_id = 0
+    for scene_id in range(args.scene_id):
+        print(scene_id, start_frame_id)
+        n_frames = int(data[scene_id]["camera"]["frames"][1])
+        start_frame_id += n_frames
+
+
     for data_id in range(args.scene_id, args.scene_id + 1):
         scene_data0 = data[data_id]
         #scene_data = data2[data_id]
-
-
 
         dbi = bvp.config
         scene_data0["background"]["dbi"] = dbi
@@ -169,34 +200,21 @@ if __name__ == "__main__":
 
 
         cam_to_lookat = init_location - init_fix_location
-        # make init_fix_location closer to the camera
-        #init_fix_location[:2] = cam_to_lookat[:2]*0.6  + init_fix_location[:2]
-        #cam_to_lookat = init_location - init_fix_location
         
-        new_cam_locs = [init_location]
+        ncam_loc = int(scene_data0["camera"]["frames"][1])
+        start_pos = init_location
+        end_pos = init_location = np.array(scene_data0["camera"]["location"][1])
+        end_fix_location = np.array(scene_data0["camera"]["fix_location"][1])
 
-        for degree in range(20, 360, 20):
-            cam_to_lookat_xy = cam_to_lookat[:2]
-            rot10 = rot2d(degree, cam_to_lookat_xy)
-            new_cam_to_lookat = copy.deepcopy(cam_to_lookat)
-            new_cam_to_lookat[:2] = rot10
-            
-            new_location = init_fix_location + new_cam_to_lookat
-            new_cam_locs.append(new_location)
+        new_cam_locs = [start_pos * (1-x) + x * end_pos for x in np.linspace(0, 1, num=ncam_loc)]
+        new_fix_locs = [init_fix_location * (1-x) + x * end_fix_location for x in np.linspace(0, 1, num=ncam_loc)]
 
-        #st()
-        ncam_loc = len(new_cam_locs)
-        #tmp = [np.linalg.norm(init_fix_location - cam_loc) for cam_loc in new_cam_locs]
-        #dist = np.linalg.norm(cam_to_lookat)
-        #print(data_id, "distance", dist)
-        #continue
+
 
         scene_data0["camera"]["location"] = [new_location.tolist() for new_location in new_cam_locs]
-        scene_data0["camera"]["fix_location"] = [init_fix_location.tolist()] * ncam_loc 
+        scene_data0["camera"]["fix_location"] = [new_fix.tolist() for new_fix in new_fix_locs] 
         scene_data0["camera"]["frames"] = [x for x in range(1, ncam_loc + 1)]
         scene_data0["frame_range"] = [1, ncam_loc]
-
-        #st()
 
         Cam = bvp.Camera(**scene_data0["camera"])
         Shadow = bvp.Shadow(**scene_data0["shadow"])
@@ -223,23 +241,27 @@ if __name__ == "__main__":
         
         depth_camXs = []
         rgb_camXs = []
+        frame_id = start_frame_id
+        depth_filename = os.path.join(args.data_dir, depth_file)
+        depth_data = h5py.File(depth_filename)["data"]
+
         for cam_id in range(ncam_loc):
             Scn.place_camera(cam_id)
             #KK = Cam.get_intrinsics(Scn)
+            #filepath = Scn.set_scene(RO, frame_id=cam_id)
             filepath = Scn.render_frame_by_frame(RO, frame_id=cam_id)
-
-            rgb_filename = filepath + ".png"
+            rgb_filename = os.path.join(args.data_dir, rgb_folder, "fr%s.png" %(str(frame_id + cam_id).zfill(7)))
             depth_filename = filepath.replace("Scenes", "Zdepth") + "_z0001.exr"
-
+            #st()
             # read depth image
-
             depth_cam = bvp_utils.io.exr_to_array(depth_filename)
             depth_camXs.append(depth_cam[:,:,0])
 
-
-            rgb_arr = np.array(Image.open(rgb_filename))
+            rgb_arr = np.array(Image.open(rgb_filename).resize((128, 128)))
             rgb_camXs.append(rgb_arr[:,:,:3])
-            
+        
+        #depth_camXs = depth_data[start_frame_id:start_frame_id + ncam_loc]
+
 
         world_T_fix = np.eye(4)
         world_T_fix[:3, 3] = init_fix_location

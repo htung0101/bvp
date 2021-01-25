@@ -1,13 +1,54 @@
+#!/bin/sh
 blender=~/Documents/install/blender-2.76b-linux-glibc211-x86_64/blender
-
-
 # render image using mark's yaml file
 
 #blender --python data_src/render_image_from_blender.py
 #blender --python render_images_grnn_data.py
 
-
 #$blender -b -P data_src/render_images_grnn_data.py -- -json_file bvp_ses1_trn1.json -scene_id 2
+
+scene_id=1
+
+
+#$blender -b -P data_src/render_images_grnn_data.py -- -json_file bvp_ses1_trn1.json -scene_id $scene_id
+
+#python data_src/visualize_pointcloud.py -scene_id=1
+# n=5
+# #value=0
+# i=0; while [ "$i" -lt 201 ]; #value in {1 2 3 4 5}
+# do
+#  	echo "$i"
+#  	$blender -b -P data_src/render_images_grnn_data.py -- -json_file bvp_ses1_trn1.json -scene_id $i -output_dir "/home/htung/Desktop/BlenderTemp/bvp_ses1_trn1"
+#     i=$((i + 1))
+# done
+
+
+# i=0; while [ "$i" -lt 201 ]; #value in {1 2 3 4 5}
+# do
+#  	echo "$i"
+#  	$blender -b -P data_src/render_images_grnn_data.py -- -json_file bvp_ses1_trn2.json -scene_id $i -output_dir "/home/htung/Desktop/BlenderTemp/bvp_ses1_trn2"
+#     i=$((i + 1))
+# done
+
+
+# i=51; while [ "$i" -lt 195 ]; #value in {1 2 3 4 5}
+# do
+#  	echo "$i"
+#  	$blender -b -P data_src/render_images_grnn_data.py -- -json_file bvp_ses1_trn3.json -scene_id $i -output_dir "/home/htung/Desktop/BlenderTemp/bvp_ses1_trn3"
+#     i=$((i + 1))
+# done
+
+
+# i=0; while [ "$i" -lt 201 ]; #value in {1 2 3 4 5}
+# do
+#  	echo "$i"
+#  	$blender -b -P data_src/render_images_grnn_data.py -- -json_file bvp_ses1_trn4.json -scene_id $i -output_dir "/home/htung/Desktop/BlenderTemp/bvp_ses1_trn4"
+#     i=$((i + 1))
+# done
+
+
+#value=$((value + 1))
+#$blender -b -P data_src/render_images_grnn_data.py -- -json_file bvp_ses1_trn1.json -scene_id $value
 
 ## put output images together to make a gif video
 #python data_src/make_video.py --prefix="Sc0001_*.png"
@@ -26,4 +67,10 @@ blender=~/Documents/install/blender-2.76b-linux-glibc211-x86_64/blender
 #python data_src/read_json.py
 
 ## 
-python data_src/visualize_pointcloud.py
+
+i=0; while [ "$i" -lt 201 ]; #value in {1 2 3 4 5}
+do
+   echo "parsing scene $i" 
+   python data_src/visualize_pointcloud.py -data_name bvp_ses1_trn1 -scene_id $i
+   i=$((i + 1))
+done
