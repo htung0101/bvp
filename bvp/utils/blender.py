@@ -10,6 +10,8 @@ import warnings
 import copy
 import re
 import math as bnp
+import ipdb
+st=ipdb.set_trace
 from six import string_types
 from .bvpMath import circ_dst # 
 
@@ -221,6 +223,7 @@ def find_group_parent(group):
     else:
         obs = group
     no_parent = [o for o in obs if o.parent is None]
+
     if len(no_parent)>1:
         # OK, try for an armature:
         armatures = [o for o in obs if o.type=='ARMATURE']
@@ -888,12 +891,20 @@ def add_group(name, fname, fpath=os.path.join(config.get('path','db_dir'), 'Obje
             autoselect=True, 
             instance_groups=proxy)
         new_obs = [x for x in list(bpy.context.scene.objects) if not x in old_obs]
+        #st()
         #print(os.path.join(fpath, fname)+"/Group/")
         #if debug:
-        #import ipdb; ipdb.set_trace()
         if len(new_obs) > 1:
-            new_obs = new_obs[:1]
-        G  = find_group_parent(new_obs)
+            # pick the object that has the same name
+            found = 0
+            for obs in new_obs:
+                if name == obs.name:
+                    new_obs = [obs]
+                    found = 1
+                    break
+            if not found:
+                new_obs = new_obs[:1]
+        G = find_group_parent(new_obs)
         grab_only(G)
     return G
 
