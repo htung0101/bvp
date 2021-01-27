@@ -132,6 +132,11 @@ id_to_rgbfolder = {"0": "berkeley_box/stimuli_trn_run0",
                    "val": "berkeley_box/stimuli_val",
                   }
 
+id_to_imgstart = {"0": 0,
+                  "1": 9000,
+                  "2": 18000,
+                  "3": 27000,
+                  "val": 0}
 
 if __name__ == "__main__":
     #import sys
@@ -151,6 +156,7 @@ if __name__ == "__main__":
     file_id  = jsonfile_to_id[args.json_file]
     depth_file = id_to_depthfile[file_id]
     rgb_folder = id_to_rgbfolder[file_id]
+    img_startid = id_to_imgstart[file_id]
     
     #with open('bvp_ses1_trn1_torender.json') as f:
     #  data2 = json.load(f)
@@ -167,12 +173,17 @@ if __name__ == "__main__":
     #RO.image_settings = {'color_depth': 32, 'file_format': 'PNG'}
 
     # find the starting point for this frame
+    correction = dict()#{0: 47, }
     start_frame_id = 0
     for scene_id in range(args.scene_id):
         print(scene_id, start_frame_id)
-        n_frames = int(data[scene_id]["camera"]["frames"][1])
+        if scene_id in correction:
+            n_frames = correction[scene_id]
+        else:
+            n_frames = int(data[scene_id]["camera"]["frames"][1])
+        
         start_frame_id += n_frames
-
+    #st()
 
     for data_id in range(args.scene_id, args.scene_id + 1):
         scene_data0 = data[data_id]
@@ -218,6 +229,12 @@ if __name__ == "__main__":
 
         Cam = bvp.Camera(**scene_data0["camera"])
         Shadow = bvp.Shadow(**scene_data0["shadow"])
+        for o in bpy.data.objects:
+            if o.name == "Cube":
+                o.select = True
+            else:
+                o.select = False
+        bpy.ops.object.delete()
 
         Objects = []
         for obj_arg in scene_data0["objects"]:
@@ -237,8 +254,6 @@ if __name__ == "__main__":
         Scn = bvp.Scene(camera=Cam, background=BG, sky=Sky, objects=Objects, shadow=Shadow, frame_range=scene_data0["frame_range"], fname=scene_data0["render_path"], frame_rate=scene_data0["frame_rate"])
         Scn.create(RO)
 
-        
-        
         depth_camXs = []
         rgb_camXs = []
         frame_id = start_frame_id
@@ -250,7 +265,7 @@ if __name__ == "__main__":
             #KK = Cam.get_intrinsics(Scn)
             #filepath = Scn.set_scene(RO, frame_id=cam_id)
             filepath = Scn.render_frame_by_frame(RO, frame_id=cam_id)
-            rgb_filename = os.path.join(args.data_dir, rgb_folder, "fr%s.png" %(str(frame_id + cam_id).zfill(7)))
+            rgb_filename = os.path.join(args.data_dir, rgb_folder, "fr%s.png" %(str(img_startid + frame_id + cam_id).zfill(7)))
             depth_filename = filepath.replace("Scenes", "Zdepth") + "_z0001.exr"
             #st()
             # read depth image
