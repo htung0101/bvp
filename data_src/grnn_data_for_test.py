@@ -175,15 +175,21 @@ if __name__ == "__main__":
     # find the starting point for this frame
     correction = dict()#{0: 47, }
     start_frame_id = 0
+    cum_frames = 0
     for scene_id in range(args.scene_id):
-        print(scene_id, start_frame_id)
+        #print(scene_id, start_frame_id)
         if scene_id in correction:
             n_frames = correction[scene_id]
         else:
             n_frames = int(data[scene_id]["camera"]["frames"][1])
         
+        if scene_id>1 and (scene_id)%10 == 0:
+            print(scene_id, start_frame_id)
+            print("    %s" %(str(cum_frames)))
+            cum_frames = 0
+        cum_frames += n_frames
         start_frame_id += n_frames
-    #st()
+    st()
 
     for data_id in range(args.scene_id, args.scene_id + 1):
         scene_data0 = data[data_id]
